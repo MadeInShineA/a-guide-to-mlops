@@ -98,12 +98,10 @@ jobs:
         if: github.ref == 'refs/heads/main'
         working-directory: introduction/mlops-guide
         run: bentoml models import model/celestial_bodies_classifier_model.bentomodel
-
       - name: Build the BentoML model artifact
         if: github.ref == 'refs/heads/main'
         working-directory: introduction/mlops-guide
         run: bentoml build src
-
       - name: Containerize and publish the BentoML model artifact Docker image
         if: github.ref == 'refs/heads/main'
         working-directory: introduction/mlops-guide
@@ -112,7 +110,6 @@ jobs:
             --image-tag ${{ secrets.GCP_CONTAINER_REGISTRY_HOST }}/celestial-bodies-classifier:latest \
             --image-tag ${{ secrets.GCP_CONTAINER_REGISTRY_HOST }}/celestial-bodies-classifier:${{ github.sha }}
           docker push --all-tags ${{ secrets.GCP_CONTAINER_REGISTRY_HOST }}/celestial-bodies-classifier
-
       - name: Get Google Cloud's Kubernetes credentials
         if: github.ref == 'refs/heads/main'
         uses: google-github-actions/get-gke-credentials@v3
@@ -120,12 +117,13 @@ jobs:
           cluster_name: ${{ secrets.GCP_K8S_CLUSTER_NAME }}
           location: ${{ secrets.GCP_K8S_CLUSTER_ZONE }}
       - name: Update the Kubernetes deployment
-        working-directory: introduction/mlops-guide
         if: github.ref == 'refs/heads/main'
+        working-directory: introduction/mlops-guide
         run: |
           yq -i '.spec.template.spec.containers[0].image = "${{ secrets.GCP_CONTAINER_REGISTRY_HOST }}/celestial-bodies-classifier:${{ github.sha }}"' kubernetes/deployment.yaml
       - name: Deploy the model on Kubernetes
         if: github.ref == 'refs/heads/main'
+        working-directory: introduction/mlops-guide
         run: |
           kubectl apply \
             -f kubernetes/deployment.yaml \
