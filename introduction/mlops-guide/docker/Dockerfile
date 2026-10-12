@@ -10,6 +10,11 @@ RUN apt-get update -y && \
     apt-get install -y build-essential lsb-release python3 python3-pip \
     curl jq vim gpg git unzip tar gettext-base libicu-dev
 
+# Install uv (used by dvc.yaml to run the training stages)
+# UV_INSTALL_DIR puts the binary in /usr/local/bin so it's on PATH for the
+# ubuntu user too (default would be /root/.local/bin, invisible to the runner)
+RUN curl -LsSf https://astral.sh/uv/install.sh | env UV_INSTALL_DIR=/usr/local/bin sh
+
 WORKDIR /home/ubuntu
 
 # Install GitHub Actions Runner
